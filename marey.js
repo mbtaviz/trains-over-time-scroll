@@ -2,7 +2,7 @@ window.drawMarey = function (stationNetwork, trips) {
   var margin = {top: 0, right: 10, bottom: 0, left: 60};
   var outerWidth = 600, outerHeight = 5500, legendOuterHeight = 90;
   var tinyMargin = {top: 0, right: 0, bottom: 0, left: 0};
-  var tinyOuterWidth = 40, tinyOuterHeight = 300;
+  var tinyOuterWidth = 40, tinyOuterHeight = 400;
   var tinyWidth = tinyOuterWidth - tinyMargin.left - tinyMargin.right,
       tinyHeight = tinyOuterHeight - tinyMargin.top - tinyMargin.bottom;
   var width = outerWidth - margin.left - margin.right,
@@ -89,7 +89,7 @@ window.drawMarey = function (stationNetwork, trips) {
       .attr('x2', function (d) { return xScale(header[d][0]); })
       .attr('y1', 0)
       .attr('y2', height);
-  var timeFmt = d3.time.format("%0I:%M %p");
+  var timeFmt = d3.time.format("%-I:%M %p");
   var yAxis = d3.svg.axis()
     .tickFormat(timeFmt)
     .ticks(d3.time.minute, 15)
@@ -194,8 +194,12 @@ window.drawMarey = function (stationNetwork, trips) {
       .attr('class', function (d) { return 'mareyline highlightable ' + d.line; })
       .attr('d', draw(tinyxScale, tinyyScale));
 
+  d3.select(window).on('resize', function () {
+    scroll.attr('height', scrollToTinyScale(window.innerHeight - 100));
+  });
+
   d3.select("#marey").on('mousemove', selectTime);
-  d3.select("#marey").on('scroll', setScrollBox);
+  d3.select(window).on('scroll', setScrollBox);
   d3.select("#marey").on('mousemove.titles', updateTitle);
   d3.select("#tinymarey").on('click', setScroll);
   var barBackground = svgBackground.append('g').attr('class', 'g-bar');
@@ -285,10 +289,10 @@ window.drawMarey = function (stationNetwork, trips) {
       .attr('x', 0)
       .attr('y', 0)
       .attr('width', tinyOuterWidth)
-      .attr('height', scrollToTinyScale(tinyOuterHeight));
+      .attr('height', scrollToTinyScale(window.innerHeight - 100));
 
   function setScrollBox() {
-    var top = d3.select("#marey").node().scrollTop;
+    var top = d3.select("body").node().scrollTop;
     scroll.attr('y', scrollToTinyScale(top));
   }
 
@@ -296,7 +300,7 @@ window.drawMarey = function (stationNetwork, trips) {
     var pos = d3.mouse(tinySvg.node());
     var y = pos[1];
     var scrollPos = Math.max(scrollToTinyScale.invert(y) - tinyOuterHeight / 2, 0);
-    d3.select("#marey").node().scrollTop = scrollPos;
+    d3.select("body").node().scrollTop = scrollPos;
     d3.event.stopPropagation();
   }
 
